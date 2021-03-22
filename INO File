@@ -1,0 +1,66 @@
+#include <LiquidCrystal.h>
+#define relay 5
+volatile float pulsos=0; //Variable entera que se almacena en la RAM del micro
+volatile float pulsosalquiebre; // variable long que se detiene al quebrar barra
+int VelUser, RPM;  //variable para la velocidad leida del potenciometro
+
+LiquidCrystal lcd(14, 15, 16, 17, 18, 19); //    ( RS, EN, d4, d5, d6, d7)
+
+void setup() 
+{  
+  Serial.begin(9600); //baudios por segundo leidos en puerto serial
+  attachInterrupt(0,  contador,  FALLING); //interrupcion 0 pin2
+  attachInterrupt(1, Quiebre,  FALLING); //interrupcion 1 pin3
+  pinMode(relay, OUTPUT);
+}
+
+void loop(){
+    
+    lcd.begin(16, 2); // Fijar el numero de caracteres y de filas
+    //VelUser = analogRead (A0);
+    //Caracterizacion de voltaje a RPM
+    //RPM = (1.4663*VelUser)+4.3985;
+    //digitalWrite(relay, HIGH);  
+}
+
+void contador()
+{
+  if(abs(pulsos-pulsosalquiebre)<9)
+  {
+  pulsos++;
+  Serial.print("Radial travel=    ");
+  Serial.println(pulsos); // vueltas
+  //Serial.println(pulsos*360/10); // Grados
+
+
+lcd.setCursor(0, 0);
+lcd.clear();
+lcd.print("Turn=  "); 
+lcd.print(pulsos);
+
+lcd.setCursor(0, 1);
+lcd.print("RPM =  "); 
+lcd.print(RPM);
+
+  return 0;
+  }
+
+  else
+  {
+  Serial.print("Quiebre ocurrio a=    ");
+  Serial.println((pulsos)); // vueltas
+  //digitalWrite(relay, HIGH);
+lcd.setCursor(0, 0);
+lcd.clear();
+lcd.print("Quiebre=  "); 
+lcd.print((pulsos-9));
+  }
+}
+
+void Quiebre()
+{ 
+  pulsosalquiebre++;
+  //Serial.print("Quiebre=    ");
+  //Serial.println(pulsosalquiebre); // vueltas
+  return 0;
+}
